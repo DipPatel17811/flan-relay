@@ -3,40 +3,33 @@ const axios = require("axios");
 const cors = require("cors");
 
 const app = express();
+const PORT = process.env.PORT || 10000;
+
+const HF_API_KEY = process.env.HF_API_KEY;
+
 app.use(cors());
 
 app.get("/ask", async (req, res) => {
   const prompt = req.query.prompt || "Hello";
-
   try {
-    const geminiRes = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage?key=${process.env.GEMINI_API_KEY}`,
+    const response = await axios.post(
+      "https://api-inference.huggingface.co/models/google/flan-t5-base",
+      { inputs: prompt },
       {
-        prompt: {
-          messages: [
-            {
-              author: "user",
-              content: prompt
-            }
-          ]
+        headers: {
+          Authorization: `Bearer ${HF_API_KEY}`,
+          "Content-Type": "application/json"
         }
-      },
-      {
-        headers: { "Content-Type": "application/json" }
       }
     );
 
-    const reply = geminiRes.data?.candidates?.[0]?.content || "⚠️ Gemini gave no reply.";
+    const reply = response.data?.[0]?.generated_text || "⚠️ No reply";
     res.json({ reply });
-  } catch (err) {
-    console.error("❌ Gemini Error:", err.response?.data || err.message);
-    res.json({
-      reply:
-        "⚠️ Gemini error: " +
-        (err.response?.data?.error?.message || err.message)
-    });
+  } catch (error) {
+    res.json({ reply: `⚠️ Gemini error: ${error.message}` });
   }
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
