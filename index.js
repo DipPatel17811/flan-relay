@@ -10,7 +10,7 @@ app.get("/ask", async (req, res) => {
 
   try {
     const geminiRes = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/chat-bison-001:generateMessage?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage?key=${process.env.GEMINI_API_KEY}`,
       {
         prompt: {
           messages: [
