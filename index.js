@@ -5,16 +5,19 @@ const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 10000;
 
-const HF_API_KEY = process.env.HF_API_KEY; // Make sure this is set in Render
+const HF_API_KEY = process.env.HF_API_KEY;
 
 app.use(cors());
+
 app.get("/ask", async (req, res) => {
   const prompt = req.query.prompt || "Hello";
+
   try {
     const response = await axios.post(
-      "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct",
+      "https://api-inference.huggingface.co/models/google/flan-t5-base",
       {
-        inputs: prompt
+        inputs: prompt,
+        options: { wait_for_model: true }
       },
       {
         headers: {
