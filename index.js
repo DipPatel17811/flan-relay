@@ -10,16 +10,16 @@ app.get("/ask", async (req, res) => {
 
   try {
     const geminiRes = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/chat-bison-001:generateMessage?key=${process.env.GEMINI_API_KEY}`,
       {
-        contents: [{ parts: [{ text: prompt }] }]
+        prompt: { text: prompt }
       },
       {
         headers: { "Content-Type": "application/json" }
       }
     );
 
-    const reply = geminiRes.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const reply = geminiRes.data?.candidates?.[0]?.content;
     if (!reply) {
       console.log("⚠️ Empty reply from Gemini");
       return res.json({ reply: "⚠️ Gemini gave no reply." });
@@ -28,9 +28,13 @@ app.get("/ask", async (req, res) => {
     res.json({ reply });
   } catch (err) {
     console.error("❌ Gemini Error:", err.response?.data || err.message);
-    res.json({ reply: "⚠️ Gemini error: " + (err.response?.data?.error?.message || err.message) });
+    res.json({
+      reply:
+        "⚠️ Gemini error: " +
+        (err.response?.data?.error?.message || err.message)
+    });
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
