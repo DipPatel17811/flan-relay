@@ -12,19 +12,21 @@ app.get("/ask", async (req, res) => {
     const geminiRes = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/chat-bison-001:generateMessage?key=${process.env.GEMINI_API_KEY}`,
       {
-        prompt: { text: prompt }
+        prompt: {
+          messages: [
+            {
+              author: "user",
+              content: prompt
+            }
+          ]
+        }
       },
       {
         headers: { "Content-Type": "application/json" }
       }
     );
 
-    const reply = geminiRes.data?.candidates?.[0]?.content;
-    if (!reply) {
-      console.log("⚠️ Empty reply from Gemini");
-      return res.json({ reply: "⚠️ Gemini gave no reply." });
-    }
-
+    const reply = geminiRes.data?.candidates?.[0]?.content || "⚠️ Gemini gave no reply.";
     res.json({ reply });
   } catch (err) {
     console.error("❌ Gemini Error:", err.response?.data || err.message);
